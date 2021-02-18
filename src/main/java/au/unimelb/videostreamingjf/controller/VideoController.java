@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
 
@@ -14,7 +16,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@RestController
+@Controller
 @RequestMapping("/file")
 public class VideoController {
 
@@ -25,13 +27,8 @@ public class VideoController {
      * return a raw html for browser, if you wish to have a restful response, eg, list of urls,
      * change this return type to List<VideoFileInfo> and return fileInfos will do the trick.
      */
-    @GetMapping(value = "/videoList", produces = MediaType.TEXT_HTML_VALUE)
-    public String getListVideoInfo(HttpServletRequest request) {
-
-        // build raw html
-        String head = "<html>" + "<header><title>Repository</title></header>" + "<body>" + "<h1>My Movie Repository</h1>";
-        String tail = "</body>" + "</html>";
-        StringBuilder content = new StringBuilder();
+    @GetMapping(value = "/videoList")
+    public String getListVideoInfo(Model model) {
 
         try {
             List<VideoFileInfo> fileInfos = videoService.loadAll().map(path -> {
@@ -40,15 +37,13 @@ public class VideoController {
                 return new VideoFileInfo(fileName, url);
             }).collect(Collectors.toList());
 
-
-            for (VideoFileInfo fileInfo : fileInfos) {
-                content.append(String.format("<a href=\"%s\">%s</a><br>", fileInfo.getUrl(), fileInfo.getName()));
-            }
+            model.addAttribute("fileInfos",fileInfos);
 
         } catch (IOException e) {
-            content.append("<p>something wrong - -, most likely wrong dictionary path</p>");
+           e.printStackTrace();
         }
-        return head + content.toString() + tail;
+
+        return "videoList";
 
 
     }
