@@ -8,6 +8,8 @@
 
 修改`src/main/resources/application.properties`中的`custom.path`，改成你的视频存放的位置根目录即可，如果是多级目录请自行修改
 videoServiceImp中的Files.walk执行DFS的最大深度
+
+跑起来后访问localhost:8082/file/videoList
 ***
 # Online video streaming for mp4
 ***
@@ -22,3 +24,5 @@ Usage
 
 change`custom.path` in `src/main/resources/application.properties`to your actual movie dictionary.
 Note this has a maximum 1 depth, if you wish to have a tree structure, go edit `Files.walk`in`videoServiceImp.java`
+
+localhost:8082/file/videoList
