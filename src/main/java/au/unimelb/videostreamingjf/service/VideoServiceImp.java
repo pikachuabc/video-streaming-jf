@@ -31,8 +31,8 @@ public class VideoServiceImp implements VideoService {
 
     @Override
     public FileSystemResource loadResource(String fileName) {
-
-        File file = new File(rootPath + "\\" + fileName);
+        String temp = System.getProperty("os.name").toLowerCase().contains("windows") ? "\\" : "/";
+        File file = new File(rootPath + temp + fileName);
         return new FileSystemResource(file);
 
     }
