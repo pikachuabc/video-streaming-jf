@@ -9,27 +9,27 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
 
-import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
 
 
 @RestController
 @RequestMapping("/file")
-@CrossOrigin("http://localhost:4200")
+@CrossOrigin()
 public class VideoController {
 
     @Autowired
     VideoService videoService;
 
     /**
-     * return a raw html for browser, if you wish to have a restful response, eg, list of urls,
-     * change this return type to List<VideoFileInfo> and return fileInfos will do the trick.
+     * return a raw html for browser containing all video file url in rootPath (max 3 depth)
      */
-    @GetMapping(value = "/videoList", produces = MediaType.TEXT_HTML_VALUE)
-    public String getListVideoInfo(HttpServletRequest request) {
+    @Deprecated
+    @GetMapping(value = "/allVideo", produces = MediaType.TEXT_HTML_VALUE)
+    public String getEpisodeInfo() {
 
         // build raw html
         String head = "<html>" + "<header><title>Repository</title></header>" + "<body>" + "<h1>My Movie Repository</h1>";
@@ -37,9 +37,9 @@ public class VideoController {
         StringBuilder content = new StringBuilder();
 
         try {
-            List<VideoFileInfo> fileInfos = videoService.loadAll().map(path -> {
+            List<VideoFileInfo> fileInfos = videoService.loadAllVideoInfo().map(path -> {
                 String fileName = path.toString();
-                String url = MvcUriComponentsBuilder.fromMethodName(VideoController.class, "getVideoByName", path.toString()).build().toString();
+                String url = MvcUriComponentsBuilder.fromMethodName(VideoController.class, "getVideoByName", "",path.toString()).build().toString();
                 return new VideoFileInfo(fileName, url);
             }).collect(Collectors.toList());
 
@@ -56,21 +56,33 @@ public class VideoController {
     }
 
     /**
-     * this return a json style video list
-     * @param request
-     * @return
+     * @return return a list of string indicating what movie/TV shows available on
+     * the server
      */
-    @GetMapping(value = "/videoListJson")
-    public List<VideoFileInfo> getListVideoInfoJson(HttpServletRequest request) {
+    @GetMapping(value = "/videoFolderList")
+    public List<String> getVideoFolder() {
+        try {
+            return videoService.loadAllVideoFolder().map(Path::toString).collect(Collectors.toList());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * @return return a list of video information in given folder, eg, all
+     *  episode in "bingBangTheory" folder, assuming we organize the mp4
+     *  video in this structure
+     */
+    @GetMapping(value = "/episodeList")
+    public List<VideoFileInfo> getEpisodeInfo(String folderName) {
 
         try {
-            List<VideoFileInfo> fileInfos = videoService.loadAll().map(path -> {
+            return videoService.loadAllEpisodeInfo(folderName).map(path -> {
                 String fileName = path.toString();
-                String url = MvcUriComponentsBuilder.fromMethodName(VideoController.class, "getVideoByName", path.toString()).build().toString();
+                String url = MvcUriComponentsBuilder.fromMethodName(VideoController.class, "getVideoByName", folderName ,path.toString()).build().toString();
                 return new VideoFileInfo(fileName, url);
             }).collect(Collectors.toList());
-
-            return fileInfos;
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -85,10 +97,10 @@ public class VideoController {
      * @param fileName name of the video file
      * @return resource for browser
      */
-    @GetMapping("/videoList/{fileName:.+}")
+    @GetMapping("/{folderName:.+}/{fileName:.+}")
     public @ResponseBody
-    ResponseEntity<FileSystemResource> getVideoByName(@PathVariable String fileName) {
-        return ResponseEntity.ok().header("Content-Type", "video/mp4").body(videoService.loadResource(fileName));
+    ResponseEntity<FileSystemResource> getVideoByName( @PathVariable String folderName,@PathVariable String fileName) {
+        return ResponseEntity.ok().header("Content-Type", "video/mp4").body(videoService.loadResource(Paths.get(folderName,fileName).toString()));
     }
 
 }

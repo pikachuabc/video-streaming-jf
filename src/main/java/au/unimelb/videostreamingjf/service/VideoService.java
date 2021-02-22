@@ -9,6 +9,8 @@ import java.nio.file.Path;
 import java.util.stream.Stream;
 
 public interface VideoService {
-    Stream<Path> loadAll() throws IOException;
+    Stream<Path> loadAllVideoInfo() throws IOException;
     FileSystemResource loadResource(String fileName);
+    Stream<Path> loadAllVideoFolder() throws IOException;
+    Stream<Path> loadAllEpisodeInfo(String folderName) throws IOException;
 }
