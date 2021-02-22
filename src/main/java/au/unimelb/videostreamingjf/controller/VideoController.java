@@ -11,11 +11,14 @@ import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBui
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+
 @RestController
 @RequestMapping("/file")
+@CrossOrigin("http://localhost:4200")
 public class VideoController {
 
     @Autowired
@@ -50,12 +53,35 @@ public class VideoController {
         }
         return head + content.toString() + tail;
 
+    }
 
+    /**
+     * this return a json style video list
+     * @param request
+     * @return
+     */
+    @GetMapping(value = "/videoListJson")
+    public List<VideoFileInfo> getListVideoInfoJson(HttpServletRequest request) {
+
+        try {
+            List<VideoFileInfo> fileInfos = videoService.loadAll().map(path -> {
+                String fileName = path.toString();
+                String url = MvcUriComponentsBuilder.fromMethodName(VideoController.class, "getVideoByName", path.toString()).build().toString();
+                return new VideoFileInfo(fileName, url);
+            }).collect(Collectors.toList());
+
+            return fileInfos;
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
 
     /**
      * get single video file from server
+     *
      * @param fileName name of the video file
      * @return resource for browser
      */
