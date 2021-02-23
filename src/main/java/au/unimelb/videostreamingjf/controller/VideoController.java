@@ -15,9 +15,10 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@CrossOrigin( allowedHeaders = "*")
+
 @RestController
 @RequestMapping("/file")
+@CrossOrigin(allowedHeaders = "*")
 public class VideoController {
 
     @Autowired
