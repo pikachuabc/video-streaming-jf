@@ -4,6 +4,7 @@ import au.unimelb.videostreamingjf.domain.VideoFileInfo;
 import au.unimelb.videostreamingjf.service.VideoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -39,7 +40,7 @@ public class VideoController {
         try {
             List<VideoFileInfo> fileInfos = videoService.loadAllVideoInfo().map(path -> {
                 String fileName = path.toString();
-                String url = MvcUriComponentsBuilder.fromMethodName(VideoController.class, "getVideoByName", "",path.toString()).build().toString();
+                String url = MvcUriComponentsBuilder.fromMethodName(VideoController.class, "streamVideoByName", "",path.toString()).build().toString();
                 return new VideoFileInfo(fileName, url);
             }).collect(Collectors.toList());
 
@@ -80,7 +81,7 @@ public class VideoController {
         try {
             return videoService.loadAllEpisodeInfo(folderName).map(path -> {
                 String fileName = path.toString();
-                String url = MvcUriComponentsBuilder.fromMethodName(VideoController.class, "getVideoByName", folderName ,path.toString()).build().toString();
+                String url = MvcUriComponentsBuilder.fromMethodName(VideoController.class, "streamVideoByName", folderName ,path.toString()).build().toString();
                 return new VideoFileInfo(fileName, url);
             }).collect(Collectors.toList());
 
@@ -92,15 +93,27 @@ public class VideoController {
 
 
     /**
-     * get single video file from server
+     * get single video stream from server
      *
      * @param fileName name of the video file
      * @return resource for browser
      */
     @GetMapping("/{folderName:.+}/{fileName:.+}")
     public @ResponseBody
-    ResponseEntity<FileSystemResource> getVideoByName( @PathVariable String folderName,@PathVariable String fileName) {
+    ResponseEntity<FileSystemResource> streamVideoByName( @PathVariable String folderName,@PathVariable String fileName) {
         return ResponseEntity.ok().header("Content-Type", "video/mp4").body(videoService.loadResource(Paths.get(folderName,fileName).toString()));
+    }
+
+    /**
+     * get video file from server
+     * @param folderName
+     * @param fileName
+     * @return
+     */
+    @GetMapping("/{folderName:.+}/{fileName:.+}/download")
+    public @ResponseBody
+    ResponseEntity<FileSystemResource> downloadVideoByName( @PathVariable String folderName,@PathVariable String fileName) {
+        return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,"attachment; filename=\"" + fileName +"\"").body(videoService.loadResource(Paths.get(folderName,fileName).toString()));
     }
 
 }
