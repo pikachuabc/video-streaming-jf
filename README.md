@@ -6,8 +6,7 @@
 ***
 使用说明
 
-修改`src/main/resources/application.properties`中的`custom.path`，改成你的视频存放的位置根目录即可，如果是多级目录请自行修改
-videoServiceImp中的Files.walk执行DFS的最大深度 
+启动时指定参数`-rootPath [绝对路径]`为视频根目录的绝对路径即可
 
 如果没有前端跑起来后访问localhost:8082/file/allVideo
 
@@ -29,7 +28,7 @@ which I don't know exactly why)
 ***
 Usage 
 
-change`custom.path` in `src/main/resources/application.properties`to your actual movie dictionary.
+add arg `-rootPath [absolute path of your folder]` when starting as your actual movie folder.
 Note this has a maximum 3 depth, if you wish to have a deep tree structure, go edit `Files.walk`in`videoServiceImp.java`
 
 localhost:8082/file/allVideo

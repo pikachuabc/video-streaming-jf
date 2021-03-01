@@ -1,5 +1,6 @@
 package au.unimelb.videostreamingjf.service;
 
+import au.unimelb.videostreamingjf.utils.Constant;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.stereotype.Service;
@@ -16,8 +17,8 @@ public class VideoServiceImp implements VideoService {
 
     private final Path rootPath;
 
-    public VideoServiceImp(@Value(value = "${custom.path}") String rootPathString) {
-        this.rootPath = Paths.get(rootPathString);
+    public VideoServiceImp() {
+        this.rootPath = Paths.get(Constant.rootPath);
     }
 
     @Override
@@ -31,14 +32,14 @@ public class VideoServiceImp implements VideoService {
 
     @Override
     public FileSystemResource loadResource(String fileName) {
-        File file = new File(Paths.get(rootPath.toString(),fileName).toString());
+        File file = new File(Paths.get(rootPath.toString(), fileName).toString());
         return new FileSystemResource(file);
     }
 
 
     @Override
     public Stream<Path> loadAllVideoFolder() throws IOException {
-        return Files.walk(this.rootPath,1)
+        return Files.walk(this.rootPath, 1)
                 .filter(path -> !path.equals(rootPath))
                 .filter(path -> !path.toString().contains(".")) // we just want folder
                 .map(this.rootPath::relativize);
@@ -47,7 +48,7 @@ public class VideoServiceImp implements VideoService {
 
     @Override
     public Stream<Path> loadAllEpisodeInfo(String folderName) throws IOException {
-        Path newPath = Paths.get(this.rootPath.toString(),folderName);
+        Path newPath = Paths.get(this.rootPath.toString(), folderName);
         return Files.walk(newPath, 1)
                 .filter(path -> !path.equals(rootPath))
                 .filter(path -> path.toString().endsWith("mp4"))
