@@ -17,7 +17,8 @@ Api:
 - Get /file/streamVideoByName?__folderName__=XXX&__fileName__=XX: 在线播放指定视频
 - Get /file/downloadVideoByName?__folderName__=XXX&__fileName__=XX: 下载指定视频 
 
-Dockerhub docker `pull pikachu1023/video-streaming` 注意启动的时候加上 -v 把视频文件夹挂载在container内 
+Dockerhub 支持:  
+docker `pull pikachu1023/video-streaming` 注意启动的时候加上 -v 把视频文件夹挂载在container内 
 - `docker run -p 8082:8082 -v {视频文件根目录绝对路径}:/share pikachu1023/video-streaming -rootPath /share`
 ***
 # Online video streaming for mp4
@@ -43,5 +44,6 @@ Api:
 - Get /file/streamVideoByName?__folderName__=XXX&__fileName__=XX: streaming video
 - Get /file/downloadVideoByName?__folderName__=XXX&__fileName__=XX: download video
 
-Dockerhub docker `pull pikachu1023/video-streaming` notice add -v when booting container for mounting your video folder in host machine into container
-- `docker run -p 8082:8082 -v {视频文件根目录绝对路径}:/share pikachu1023/video-streaming -rootPath /share`
+Dockerhub 支持:  
+docker `pull pikachu1023/video-streaming` notice add -v when booting container for mounting your video folder in host machine into container
+- `docker run -p 8082:8082 -v {root path of your video folder}:/share pikachu1023/video-streaming -rootPath /share`
